@@ -73,9 +73,6 @@ def run_full_pipeline(
     cv2.imwrite(str(seg_path), overlay)
     cv2.imwrite(str(norm_path), norm)
 
-    # optional: save code to a temporary json for debugging
-    # Path(out_dir, f"{stem}_code.npy").write_bytes(iris_code.tobytes())
-
     return str(seg_path), str(norm_path), (cx, cy, r_pupil, r_iris)
 
 
