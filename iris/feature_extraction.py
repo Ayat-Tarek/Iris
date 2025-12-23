@@ -13,22 +13,28 @@ def gabor_filter_bank(size=(9, 9), frequency=0.5, sigma=3.0):
     return real, imag
 
 
-def sample_points(image_shape, radial_bands=8, angular_sectors=128):
-    """
-    Divide the normalized iris image (e.g., 64x360) into 8x128 patches.
-    Return the center coordinates of each patch.
-    """
-    rows, cols = image_shape
-    r_positions = np.linspace(0, rows - 1, radial_bands + 1, dtype=int)
-    theta_positions = np.linspace(0, cols - 1, angular_sectors + 1, dtype=int)
+# In feature_extraction.py, modify sample_points to cache results
+_SAMPLE_POINTS_CACHE = {}
 
-    points = []
-    for i in range(radial_bands):
-        for j in range(angular_sectors):
-            r_center = (r_positions[i] + r_positions[i + 1]) // 2
-            theta_center = (theta_positions[j] + theta_positions[j + 1]) // 2
-            points.append((r_center, theta_center))
-    return points  
+def sample_points(image_shape, radial_bands=8, angular_sectors=128):
+    """Cached version of sample points calculation."""
+    cache_key = (image_shape, radial_bands, angular_sectors)
+    
+    if cache_key not in _SAMPLE_POINTS_CACHE:
+        rows, cols = image_shape
+        r_positions = np.linspace(0, rows - 1, radial_bands + 1, dtype=int)
+        theta_positions = np.linspace(0, cols - 1, angular_sectors + 1, dtype=int)
+
+        points = []
+        for i in range(radial_bands):
+            for j in range(angular_sectors):
+                r_center = (r_positions[i] + r_positions[i + 1]) // 2
+                theta_center = (theta_positions[j] + theta_positions[j + 1]) // 2
+                points.append((r_center, theta_center))
+        
+        _SAMPLE_POINTS_CACHE[cache_key] = points
+    
+    return _SAMPLE_POINTS_CACHE[cache_key]
 
 
 def encode_iris(normalized_iris, radial_bands=8, angular_sectors=128):
